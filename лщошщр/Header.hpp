@@ -60,6 +60,8 @@ public:
 		}
 	}
 
+
+	int Size()const { return size_; }
 	//перегрузка методом класса	
 	//для обоюдного использования оператора нудна друж. функция
 	friend MyString operator+(const MyString& rso, const MyString& lso)
@@ -85,6 +87,11 @@ public:
 	char& operator[](int i) 
 	{
 		return data_[i]; 
+	}
+
+	const char& operator[](int i)const
+	{
+		return data_[i];
 	}
 
 
