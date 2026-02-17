@@ -12,13 +12,44 @@ public:
 	MyString() :MyString(16) {}
 
 	MyString(int size)
-		:size_(size), data_(new char[size_]) {}
+		:size_(size), data_(new char[size_+1]) {}
 
 	MyString(const char* str)
 	{
 		size_ = ::strlen(str);
-		data_ = new char[size_];
+		data_ = new char[size_+1];
 		::memcpy(data_, str, size_);
+	}
+
+	MyString(const MyString& other)
+	{
+		size_ = other.size_;
+		data_ = new char[size_ + 1] {};
+		::memcpy(data_, other.data_, size_);
+	}
+
+	//правило трёх - если требуется деструктор, 
+	//конструктор копирования или оператор присваивания копирования
+	//для управления ресурсами, то нужно реализовать все три.
+	
+
+	//правило пяти - если в программе требуется перенос данных
+	//через конструктор переноса либо присваивание переносом
+	//то нужно реализовать все пять блоков
+	//(3 из правила трёх + конструктор переноса + присваивания переносом)
+
+	MyString(MyString&& other)
+	{
+		size_ = 0;
+		data_ = nullptr;
+		std::swap(size_, other.size_);
+		std::swap(data_, other.data_);
+	}
+
+	MyString& operator=(MyString&& other)
+	{
+		std::swap(size_, other.size_);
+		std::swap(data_, other.data_);
 	}
 
 	~MyString()
@@ -42,11 +73,12 @@ public:
 		{
 			result.data_[i] = rso.data_[i];
 		}
-
-		for (int j = 0; j < lso.size_; j++)
+		int j = 0;
+		for (; j < lso.size_; j++)
 		{
 			result.data_[i + j] = lso.data_[j];
 		}
+		//result.data_[i + j] = '\0';
 		return result;
 	}
 
@@ -55,7 +87,16 @@ public:
 		return data_[i]; 
 	}
 
-	MyString& operator+=(const MyString& lso);
+
+	MyString& operator+=(const MyString& lso)
+	{
+		auto tmp = new char[size_ + lso.size_];
+		::memcpy(tmp, data_, size_);
+		::memcpy(tmp + size_, lso.data_, lso.size_);
+		std::swap(tmp, data_);
+		delete tmp;
+		return *this;
+	}
 
 private:
 	char* data_;
